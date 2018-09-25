@@ -1,6 +1,6 @@
-package ch.joelhaeberli.testobjectfactory.test.dummies;
+package ch.joelhaeberli.testobjectfactory.dummies;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class DummyClassB {
 

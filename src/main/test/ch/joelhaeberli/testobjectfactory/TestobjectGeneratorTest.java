@@ -1,8 +1,6 @@
 package ch.joelhaeberli.testobjectfactory;
 
-import ch.joelhaeberli.testobjectfactory.TestdataGenerator;
-import ch.joelhaeberli.testobjectfactory.TestobjectGenerator;
-import ch.joelhaeberli.testobjectfactory.test.dummies.DummyClassA;
+import ch.joelhaeberli.testobjectfactory.dummies.DummyClassA;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -24,14 +22,8 @@ public class TestobjectGeneratorTest {
     }
 
     @Test
-    public void testEagerObjectGeneration() throws Exception {
+    public void testEagerObjectGeneration() {
         DummyClassA dummyClassA = this.testobjectGenerator.getTestObjectEager(DummyClassA.class, 3);
-        Assertions.assertThat(dummyClassA).isNotNull();
-    }
-
-    @Test
-    public void testEagerObjectGeneration2() throws Exception {
-        Benutzer dummyClassA = this.testobjectGenerator.getTestObjectEager(Benutzer.class, 10);
         Assertions.assertThat(dummyClassA).isNotNull();
     }
 
