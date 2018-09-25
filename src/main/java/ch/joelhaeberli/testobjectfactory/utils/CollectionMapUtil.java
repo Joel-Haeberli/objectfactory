@@ -1,21 +1,23 @@
-package ch.joelhaeberli.testobjectfactory.factory;
+package ch.joelhaeberli.testobjectfactory.utils;
+
+import ch.joelhaeberli.testobjectfactory.TestobjectGeneratorFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class CollectionHandler {
+public class CollectionMapUtil {
 
-    public static <T> Collection<T> getCollection(Field f) {
+    public <T> Collection<T> getCollection(Field f) {
 
         Collection<T> collection = null;
 
         Class<T> collectionValueType = getCollectionType(f);
 
         try {
-            T object1 = TestObjectFactory.getInstance().getTestObject(collectionValueType);
-            T object2 = TestObjectFactory.getInstance().getTestObject(collectionValueType);
+            T object1 = TestobjectGeneratorFactory.createTestobjectGenerator().getTestObjectOnlyInstance(collectionValueType);
+            T object2 = TestobjectGeneratorFactory.createTestobjectGenerator().getTestObjectOnlyInstance(collectionValueType);
 
             collection = getCollectionBody(f);
 
@@ -27,13 +29,13 @@ public class CollectionHandler {
         return collection;
     }
 
-    public static <T> Class<T> getCollectionType(Field f) {
+    public <T> Class<T> getCollectionType(Field f) {
 
         ParameterizedType parameterizedType = (ParameterizedType) f.getGenericType();
         return (Class<T>) parameterizedType.getActualTypeArguments()[0];
     }
 
-    public static <K, V> Map<K, V> getMap(Field f) {
+    public <K, V> Map<K, V> getMap(Field f) {
 
         Map<K, V> map;
 
@@ -42,9 +44,9 @@ public class CollectionHandler {
         Class<V> mapValueType = (Class<V>) parameterizedType.getActualTypeArguments()[1];
 
         try {
-            K key1 = TestObjectFactory.getInstance().getTestObject(mapKeyType);
-            K key2 = TestObjectFactory.getInstance().getTestObject(mapKeyType);
-            V value = TestObjectFactory.getInstance().getTestObject(mapValueType);
+            K key1 = TestobjectGeneratorFactory.createTestobjectGenerator().getTestObjectOnlyInstance(mapKeyType);
+            K key2 = TestobjectGeneratorFactory.createTestobjectGenerator().getTestObjectOnlyInstance(mapKeyType);
+            V value = TestobjectGeneratorFactory.createTestobjectGenerator().getTestObjectOnlyInstance(mapValueType);
 
             map = getMapBody(f, mapKeyType, mapValueType);
 
@@ -56,19 +58,19 @@ public class CollectionHandler {
         return map;
     }
 
-    public static Class getKeyTypeOfMap(Field f) {
+    public Class getKeyTypeOfMap(Field f) {
 
         ParameterizedType parameterizedType = (ParameterizedType) f.getGenericType();
         return (Class) parameterizedType.getActualTypeArguments()[0];
     }
 
-    public static Class getValueTypeOfMap(Field f) {
+    public Class getValueTypeOfMap(Field f) {
 
         ParameterizedType parameterizedType = (ParameterizedType) f.getGenericType();
         return (Class) parameterizedType.getActualTypeArguments()[1];
     }
 
-    public static <K, V> Map<K, V> getMapBody(Field f, Class<K> mapKeyType, Class<V> mapValueType) {
+    public <K, V> Map<K, V> getMapBody(Field f, Class<K> mapKeyType, Class<V> mapValueType) {
 
         Type t = f.getType();
 
@@ -87,7 +89,7 @@ public class CollectionHandler {
     }
 
     // Collection-Framework as http://www.beingjavaguys.com/2013/03/java-collection-framework.html
-    public static <T> Collection<T> getCollectionBody(Field f) {
+    public <T> Collection<T> getCollectionBody(Field f) {
 
         if (f.getType() == Collection.class) {
             if (f.getType() == List.class) {
@@ -101,27 +103,27 @@ public class CollectionHandler {
                     return new Stack<>();
                 }
                 return new ArrayList<>();
-            } else if (f.getType() == Set.class) {
-                if (f.getType() == HashSet.class) {
-                    return new HashSet<>();
-                } else if (f.getType() == LinkedHashSet.class) {
-                    return new LinkedHashSet<>();
-                } else if (f.getType() == SortedSet.class) {
-                    return new TreeSet<>();
-                }
+            }
+        } else if (f.getType() == Set.class) {
+            if (f.getType() == HashSet.class) {
                 return new HashSet<>();
-            } else if (f.getType() == Queue.class) {
-                if (f.getType() == PriorityQueue.class) {
-                    return new PriorityQueue<>();
-                } else if (f.getType() == Deque.class) {
-                    return new ArrayDeque<>();
-                }
+            } else if (f.getType() == LinkedHashSet.class) {
+                return new LinkedHashSet<>();
+            } else if (f.getType() == SortedSet.class) {
+                return new TreeSet<>();
+            }
+            return new HashSet<>();
+        } else if (f.getType() == Queue.class) {
+            if (f.getType() == PriorityQueue.class) {
+                return new PriorityQueue<>();
+            } else if (f.getType() == Deque.class) {
+                return new ArrayDeque<>();
             }
         }
         return new ArrayList<>();
     }
 
-    public static boolean isCollection(Field f) {
+    public boolean isCollection(Field f) {
         List<Class> superclasses = Arrays.asList(f.getType().getInterfaces());
         if (superclasses.contains(Collection.class) || f.getType() == Collection.class) {
             return true;
@@ -129,7 +131,7 @@ public class CollectionHandler {
         return false;
     }
 
-    public static boolean isCollection(Class c) {
+    public boolean isCollection(Class c) {
         List<Class> superclasses = Arrays.asList(c.getInterfaces());
         if (superclasses.contains(Collection.class) || c == Collection.class) {
             return true;
@@ -137,7 +139,7 @@ public class CollectionHandler {
         return false;
     }
 
-    public static boolean isMap(Field f) {
+    public boolean isMap(Field f) {
         List<Class> superclasses = Arrays.asList(f.getType().getInterfaces());
         if (superclasses.contains(Map.class) || f.getType() == Map.class) {
             return true;
@@ -145,7 +147,7 @@ public class CollectionHandler {
         return false;
     }
 
-    public static boolean isMap(Class c) {
+    public boolean isMap(Class c) {
         List<Class> superclasses = Arrays.asList(c.getInterfaces());
         if (superclasses.contains(Map.class) || c == Map.class) {
             return true;

@@ -1,52 +1,57 @@
-package ch.joelhaeberli.testobjectfactory.factory;
+package ch.joelhaeberli.testobjectfactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Generates test-data random-based
- * <p>
- * If you want to generate test-data for specific types create a method below that returns a value of your desired type.
- * <p>
- * !!!ATTENTION!!! : The method-name MUST start with "get".
- */
-public class DataGenerator {
+public class TestdataGenerator {
 
-    private final int LONG_STRING_LENGTH = 30;
-    private final int SHORT_STRING_LENGTH = 6;
-
-    private boolean useShortString = false;
+    private int strLength = 6;
     private boolean defaultBooleanValue = true;
 
     public final String METHOD_SUFIX = "get";
 
     private final Random RANDOM = new Random();
 
+    private final String MULTILANGUAGE_TEXT = "Junit_String_Value";
     private final LocalDateTime LOCAL_DATE_TIME_VALUE = LocalDateTime.now();
 
     private final String ALPHANUMERICS = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890";
 
     private List<Type> providedTypes;
+    public static final byte[] BYTE_ARRAY_VALUES = new byte[]{3, 5, 6, 7};
 
-    public DataGenerator() {
-        this.providedTypes = loadProvidedTypes();
-    }
-
-    public DataGenerator(Boolean useShortString, Boolean defaultBooleanValue) {
-        this.useShortString = useShortString;
+    /**
+     * Generates dummy-values
+     *
+     * @param strLength           the length of the strings which are generated
+     * @param defaultBooleanValue the boolean-value which will be generated
+     */
+    public TestdataGenerator(int strLength, Boolean defaultBooleanValue) {
+        this.strLength = strLength;
         this.defaultBooleanValue = defaultBooleanValue;
         this.providedTypes = loadProvidedTypes();
     }
 
+    /**
+     * Generates a value for type clazz
+     *
+     * @param clazz
+     * @param <T>
+     * @return value
+     * @throws Exception
+     */
     public <T> T generateValue(Class<T> clazz) throws Exception {
         Method m = loadMethodWithReturnType(clazz);
         if (m != null) {
@@ -56,12 +61,14 @@ public class DataGenerator {
         }
     }
 
+    /**
+     * Checks wether a specific value can be generated or not
+     * @param clazz
+     * @param <T>
+     * @return
+     */
     public <T> boolean isProvided(Class<T> clazz) {
         return (this.providedTypes.contains(clazz));
-    }
-
-    public boolean isUseShortString() {
-        return useShortString;
     }
 
     public boolean isDefaultBooleanValue() {
@@ -69,7 +76,11 @@ public class DataGenerator {
     }
 
     private Integer getInteger() {
-        return RANDOM.nextInt();
+        return Math.abs(RANDOM.nextInt(Short.MAX_VALUE));
+    }
+
+    private BigInteger getBigInteger() {
+        return new BigInteger(2, RANDOM).abs();
     }
 
     private int getIntegerPrimitive() {
@@ -77,11 +88,15 @@ public class DataGenerator {
     }
 
     private Short getShort() {
-        return (short) RANDOM.nextInt();
+        return (short) Math.abs(RANDOM.nextInt(Short.MAX_VALUE));
+    }
+
+    private short getShortPrimitive() {
+        return getShort();
     }
 
     private Long getLong() {
-        return RANDOM.nextLong();
+        return new Long(Math.abs(RANDOM.nextInt(Short.MAX_VALUE)));
     }
 
     private long getLongPrimitive() {
@@ -89,28 +104,51 @@ public class DataGenerator {
     }
 
     private String getString() {
-        if (useShortString) {
-            return genString(SHORT_STRING_LENGTH);
-        }
-        return genString(LONG_STRING_LENGTH);
+        return genString(strLength);
     }
 
     private Boolean getBoolean() {
         return new Boolean(defaultBooleanValue);
     }
 
+    private boolean getBooleanPrimitive() { return defaultBooleanValue; }
+
     private BigDecimal getBigDecimal() {
-        return new BigDecimal(getLong());
+        return new BigDecimal(getLong()).abs();
+    }
+
+    private BigDecimal[] getBigDecimalArray() {
+        BigDecimal[] a = new BigDecimal[2];
+        a[0] = getBigDecimal();
+        a[1] = getBigDecimal();
+        return a;
     }
 
     private LocalDate getLocalDate() {
         return LocalDate.now();
     }
 
+    private LocalTime getLocalTime() {
+        return LocalTime.now();
+    }
+
     private boolean[] getBooleanArray() {
         boolean[] booleans = new boolean[1];
         booleans[0] = true;
         return booleans;
+    }
+
+    private byte[] getByteArrayPrimitve() {
+        return BYTE_ARRAY_VALUES;
+    }
+
+    private Byte[] getByteArray() {
+        byte[] bp = getByteArrayPrimitve();
+        Byte[] b = new Byte[bp.length];
+        for (int i = 0; i <= bp.length - 1; i++) {
+            b[i] = bp[i];
+        }
+        return b;
     }
 
     private LocalDateTime getLocalDateTime() {
@@ -121,6 +159,10 @@ public class DataGenerator {
         return new Date(System.currentTimeMillis());
     }
 
+    private Time getSqlTime() {
+        return Time.valueOf(LocalTime.now());
+    }
+
     private Timestamp getSqlTimestamp() {
         return new Timestamp(System.currentTimeMillis());
     }
@@ -129,14 +171,23 @@ public class DataGenerator {
         return new java.util.Date(System.currentTimeMillis());
     }
 
+    /**
+     * Generates a (pseudo-)random string
+     * @param length length of string
+     * @return string
+     */
     private String genString(int length) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i <= length; i++) {
+        for (int i = 0; i < length; i++) {
             sb.append(ALPHANUMERICS.charAt(RANDOM.nextInt(ALPHANUMERICS.length())));
         }
         return sb.toString();
     }
 
+    /**
+     * loads the types which are generated by the TestdataGenerator
+     * @return List of provided types
+     */
     private List<Type> loadProvidedTypes() {
 
         List<Type> types = new ArrayList<>();
@@ -150,6 +201,12 @@ public class DataGenerator {
         return types;
     }
 
+    /**
+     * Loads a method with the return-type clazz
+     * @param clazz
+     * @param <T>
+     * @return Method
+     */
     private <T> Method loadMethodWithReturnType(Class<T> clazz) {
         for (Method m : Arrays.asList(this.getClass().getDeclaredMethods())) {
             if (m.getReturnType() == clazz) {
